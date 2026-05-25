@@ -41,8 +41,8 @@ export const bakeryConfig: AppConfig = {
   businessName: 'Wawabakes Wonder',
   currency: 'RM',
   currencySymbolPosition: 'before',
-  labourRatePerHour: 18,
-  machineRatePerHour: 0.43,
+  labourRatePerHour: 12,
+  machineRatePerHour: 0.4333333333,
   defaultTargetMarginPct: 55,
   taxRatePct: 6,
   units: ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece', 'biji', 'sheet'],
@@ -155,25 +155,32 @@ export async function loadBakerySeed(): Promise<void> {
   await clearAll();
   await setMeta('config', JSON.stringify(bakeryConfig));
 
-  // Ingredient master data from Wawabakes Wonder's own costing sheet.
-  // costPerBaseUnit is purchasePrice / purchaseQty, kept at full precision (Rule A).
+  // Ingredient master data taken verbatim from Wawabakes Wonder's costing
+  // sheet, Block 1 (the only block whose line costs sum exactly to its stated
+  // total of RM55.56). Unit prices: butter RM14.90/250g, castor RM4.50/kg, etc.
+  // costPerBaseUnit = purchasePrice / purchaseQty at full precision (Rule A).
+  // Stock levels are not in the sheet; seeded as one purchase pack of each.
   const materials: Material[] = [
-    { name: 'Lurpak Salted Butter', purchasePrice: 15.3, purchaseQty: 250, purchaseUnit: 'g', costPerBaseUnit: 0.0612, stockOnHand: 2000, reorderThreshold: 500, supplier: 'Grocer', category: 'Dairy' },
-    { name: 'Castor Sugar', purchasePrice: 4.9, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.0049, stockOnHand: 3000, reorderThreshold: 500, supplier: 'Grocer', category: 'Sweetener' },
-    { name: 'Brown Sugar', purchasePrice: 4.95, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.00495, stockOnHand: 3000, reorderThreshold: 500, supplier: 'Grocer', category: 'Sweetener' },
-    { name: 'Tepung Bakers (Flour)', purchasePrice: 2.95, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.00295, stockOnHand: 5000, reorderThreshold: 1000, supplier: 'Grocer', category: 'Dry Goods' },
-    { name: 'Corn Starch', purchasePrice: 6, purchaseQty: 400, purchaseUnit: 'g', costPerBaseUnit: 0.015, stockOnHand: 800, reorderThreshold: 200, supplier: 'Grocer', category: 'Dry Goods' },
-    { name: 'Baking Soda', purchasePrice: 1.3, purchaseQty: 100, purchaseUnit: 'g', costPerBaseUnit: 0.013, stockOnHand: 300, reorderThreshold: 50, supplier: 'Grocer', category: 'Leavening' },
-    { name: 'Egg (Grade A)', purchasePrice: 13.8, purchaseQty: 30, purchaseUnit: 'biji', costPerBaseUnit: 0.46, stockOnHand: 60, reorderThreshold: 12, supplier: 'Grocer', category: 'Dairy' },
-    { name: 'Vanilla Essence', purchasePrice: 21, purchaseQty: 1000, purchaseUnit: 'ml', costPerBaseUnit: 0.021, stockOnHand: 500, reorderThreshold: 100, supplier: 'Grocer', category: 'Flavouring' },
-    { name: 'Callebaut Chocolate', purchasePrice: 114, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.114, stockOnHand: 2000, reorderThreshold: 500, supplier: 'Baking Supply', category: 'Chocolate' },
-    { name: 'Maldon Seasalt', purchasePrice: 33, purchaseQty: 250, purchaseUnit: 'g', costPerBaseUnit: 0.132, stockOnHand: 250, reorderThreshold: 50, supplier: 'Baking Supply', category: 'Salt' },
-    { name: 'Jar + Sticker', purchasePrice: 1.6, purchaseQty: 1, purchaseUnit: 'piece', costPerBaseUnit: 1.6, stockOnHand: 50, reorderThreshold: 20, supplier: 'Packaging Co', category: 'Packaging' },
+    { name: 'Lurpak Salted Butter', purchasePrice: 14.9, purchaseQty: 250, purchaseUnit: 'g', costPerBaseUnit: 14.9 / 250, stockOnHand: 250, reorderThreshold: 125, supplier: 'Grocer', category: 'Dairy' },
+    { name: 'Castor Sugar', purchasePrice: 4.5, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 4.5 / 1000, stockOnHand: 1000, reorderThreshold: 200, supplier: 'Grocer', category: 'Sweetener' },
+    { name: 'Brown Sugar', purchasePrice: 4.95, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 4.95 / 1000, stockOnHand: 1000, reorderThreshold: 200, supplier: 'Grocer', category: 'Sweetener' },
+    { name: 'Tepung Bakers (Flour)', purchasePrice: 2.95, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 2.95 / 1000, stockOnHand: 1000, reorderThreshold: 300, supplier: 'Grocer', category: 'Dry Goods' },
+    { name: 'Corn Starch', purchasePrice: 6, purchaseQty: 400, purchaseUnit: 'g', costPerBaseUnit: 6 / 400, stockOnHand: 400, reorderThreshold: 100, supplier: 'Grocer', category: 'Dry Goods' },
+    { name: 'Baking Soda', purchasePrice: 1.3, purchaseQty: 100, purchaseUnit: 'g', costPerBaseUnit: 1.3 / 100, stockOnHand: 100, reorderThreshold: 25, supplier: 'Grocer', category: 'Leavening' },
+    { name: 'Egg (Grade A)', purchasePrice: 13.8, purchaseQty: 30, purchaseUnit: 'biji', costPerBaseUnit: 13.8 / 30, stockOnHand: 30, reorderThreshold: 6, supplier: 'Grocer', category: 'Dairy' },
+    { name: 'Vanilla Essence', purchasePrice: 21, purchaseQty: 1000, purchaseUnit: 'ml', costPerBaseUnit: 21 / 1000, stockOnHand: 1000, reorderThreshold: 200, supplier: 'Grocer', category: 'Flavouring' },
+    { name: 'Callebaut Chocolate', purchasePrice: 114, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 114 / 1000, stockOnHand: 1000, reorderThreshold: 300, supplier: 'Baking Supply', category: 'Chocolate' },
+    { name: 'Maldon Seasalt', purchasePrice: 33, purchaseQty: 250, purchaseUnit: 'g', costPerBaseUnit: 33 / 250, stockOnHand: 250, reorderThreshold: 50, supplier: 'Baking Supply', category: 'Salt' },
+    { name: 'Jar', purchasePrice: 3.5, purchaseQty: 1, purchaseUnit: 'piece', costPerBaseUnit: 3.5, stockOnHand: 20, reorderThreshold: 10, supplier: 'Packaging Co', category: 'Packaging' },
   ];
   const ids = (await db.materials.bulkAdd(materials, { allKeys: true })) as number[];
   const [butter, castor, brown, flour, cornStarch, soda, egg, vanilla, choc, salt] = ids;
 
-  // byWeight: total dough ~1300 g divided into 180 g jars => 7.22 jars per bake.
+  // byWeight: total dough 1300 g divided into 180 g jars => 7.22 jars per bake.
+  // Recipe and overheads mirror Block 1 exactly: Callebaut 200g, Labour 1.5h
+  // @ RM12 = RM18, Electricity 1.5h @ RM0.4333 = RM0.65, Jar RM3.50.
+  // Batch material cost = RM33.40, overheads = RM22.15, total = RM55.55
+  // (the sheet shows RM55.56 from rounding each line before summing).
   const product: Product = {
     name: 'Wawabakes Wonder Cookie Jar',
     yieldMode: 'byWeight',
@@ -189,39 +196,15 @@ export async function loadBakerySeed(): Promise<void> {
       { materialId: soda, amountUsed: 2.5, unit: 'g' },
       { materialId: egg, amountUsed: 1, unit: 'biji' },
       { materialId: vanilla, amountUsed: 15, unit: 'ml' },
-      { materialId: choc, amountUsed: 150, unit: 'g' },
+      { materialId: choc, amountUsed: 200, unit: 'g' },
       { materialId: salt, amountUsed: 5, unit: 'g' },
     ],
     batchOverheads: [
-      { label: 'Labour (self)', hours: 1.5, rateType: 'labour' },
       { label: 'Electricity', hours: 1.5, rateType: 'machine' },
+      { label: 'Labour (self)', hours: 1.5, rateType: 'labour' },
+      { label: 'Jar', cost: 3.5 },
     ],
-    packagingCostPerUnit: 1.6,
-    sellPrice: 28,
+    packagingCostPerUnit: 0,
   };
-  const productId = (await db.products.add(product)) as number;
-
-  await db.productions.add({
-    date: monthsAgoIso(1, 6),
-    productId,
-    batchMultiplier: 1,
-    unitsProduced: 7,
-    unitsWasted: 0,
-    trueCostPerUnitSnapshot: 9.7,
-  });
-
-  // Sample sales/expenses (not in the source sheet) so the dashboard has data.
-  const sales: Sale[] = [
-    { date: monthsAgoIso(2, 14), productId, unitsSold: 6, unitPrice: 28, channel: 'Market', costPerUnitSnapshot: 9.6 },
-    { date: monthsAgoIso(1, 9), productId, unitsSold: 10, unitPrice: 28, channel: 'Online', costPerUnitSnapshot: 9.65 },
-    { date: monthsAgoIso(1, 22), productId, unitsSold: 5, unitPrice: 26, channel: 'Market', costPerUnitSnapshot: 9.7 },
-    { date: isoDaysAgo(4), productId, unitsSold: 7, unitPrice: 28, channel: 'Online', costPerUnitSnapshot: 9.7 },
-  ];
-  await db.sales.bulkAdd(sales);
-
-  const expenses: Expense[] = [
-    { date: monthsAgoIso(1, 2), label: 'Kitchen rent', amount: 200, category: 'Rent' },
-    { date: isoDaysAgo(2), label: 'Market stall fee', amount: 50, category: 'Marketing' },
-  ];
-  await db.expenses.bulkAdd(expenses);
+  await db.products.add(product);
 }

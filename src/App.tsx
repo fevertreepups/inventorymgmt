@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, Route, Routes } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db/db';
 import { useConfig } from './config';
-import { loadCandleSeed, loadBakerySeed } from './db/seed';
-import { Modal } from './components/ui';
+import { loadBakerySeed } from './db/seed';
 import Dashboard from './pages/Dashboard';
 import Materials from './pages/Materials';
 import Products from './pages/Products';
@@ -36,23 +35,25 @@ export default function App() {
       db.sales.count(),
       db.expenses.count(),
     ]);
-    const seenWelcome = (await db.meta.get('seenWelcome'))?.value === '1';
-    return { total: m + p + s + e, seenWelcome };
+    const seeded = (await db.meta.get('seeded'))?.value === '1';
+    return { total: m + p + s + e, seeded };
   });
 
-  const showWelcome = counts && counts.total === 0 && !counts.seenWelcome;
-
-  const dismissWelcome = async () => {
-    await db.meta.put({ key: 'seenWelcome', value: '1' });
-    await reload();
-  };
-
-  const loadSeed = async (which: 'candle' | 'bakery') => {
-    if (which === 'candle') await loadCandleSeed();
-    else await loadBakerySeed();
-    await db.meta.put({ key: 'seenWelcome', value: '1' });
-    await reload();
-  };
+  // First run on a fresh device: auto-load the Wawabakes Wonder data so the
+  // dashboard mirrors the costing sheet with no setup. Guarded so clearing
+  // data later does not re-seed.
+  const seeding = useRef(false);
+  useEffect(() => {
+    if (!counts || seeding.current) return;
+    if (counts.total === 0 && !counts.seeded) {
+      seeding.current = true;
+      (async () => {
+        await loadBakerySeed();
+        await db.meta.put({ key: 'seeded', value: '1' });
+        await reload();
+      })();
+    }
+  }, [counts, reload]);
 
   const label = (l: string) =>
     l in config.vocabulary ? (config.vocabulary as any)[l] : l;
@@ -103,28 +104,6 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
-
-      <Modal open={!!showWelcome} title="Welcome to CostBook" onClose={dismissWelcome}>
-        <p className="text-sm text-gray-600">
-          CostBook is an inventory, costing and growth tool for small product businesses. Load an
-          example to explore, or start with an empty book.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <button className="card text-left hover:shadow-md" onClick={() => loadSeed('candle')}>
-            <p className="font-medium">Ember &amp; Oak Candles</p>
-            <p className="text-xs text-gray-500">Direct-yield example (1 pour = 12 candles).</p>
-          </button>
-          <button className="card text-left hover:shadow-md" onClick={() => loadSeed('bakery')}>
-            <p className="font-medium">Wawabakes Wonder</p>
-            <p className="text-xs text-gray-500">By-weight example with Ingredient/Recipe/Bake labels.</p>
-          </button>
-        </div>
-        <div className="mt-4 text-right">
-          <button className="btn-secondary" onClick={dismissWelcome}>
-            Start empty
-          </button>
-        </div>
-      </Modal>
     </div>
   );
 }

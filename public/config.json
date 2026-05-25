@@ -1,23 +1,23 @@
 {
-  "businessName": "Ember & Oak Candles",
+  "businessName": "Wawabakes Wonder",
   "currency": "RM",
   "currencySymbolPosition": "before",
-  "labourRatePerHour": 24,
-  "machineRatePerHour": 0.43,
-  "defaultTargetMarginPct": 60,
-  "taxRatePct": 0,
-  "units": ["g", "kg", "ml", "l", "tsp", "tbsp", "piece", "metre", "cm", "sheet"],
-  "materialCategories": ["Wax", "Wick", "Fragrance", "Vessel", "Packaging", "Other"],
+  "labourRatePerHour": 12,
+  "machineRatePerHour": 0.4333333333,
+  "defaultTargetMarginPct": 55,
+  "taxRatePct": 6,
+  "units": ["g", "kg", "ml", "l", "tsp", "tbsp", "piece", "biji", "sheet"],
+  "materialCategories": ["Dairy", "Dry Goods", "Chocolate", "Sweetener", "Leavening", "Flavouring", "Salt", "Packaging", "Other"],
   "expenseCategories": ["Rent", "Marketing", "Equipment", "Utilities", "Other"],
   "salesChannels": ["Market", "Online", "Wholesale", "Retail"],
   "vocabulary": {
-    "material": "Material",
-    "materialPlural": "Materials",
-    "product": "Product",
-    "productPlural": "Products",
-    "productionRun": "Batch",
-    "productionRunPlural": "Batches"
+    "material": "Ingredient",
+    "materialPlural": "Ingredients",
+    "product": "Recipe",
+    "productPlural": "Recipes",
+    "productionRun": "Bake",
+    "productionRunPlural": "Bakes"
   },
-  "theme": { "primary": "#3a5a40", "accent": "#a3b18a" },
+  "theme": { "primary": "#7f5539", "accent": "#e6ccb2" },
   "logoPath": "/assets/logo.png"
 }
