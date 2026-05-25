@@ -8,6 +8,29 @@ import { formatCurrency, formatQty } from '../lib/format';
 import { toCSV, parseCSV, downloadCSV } from '../lib/csv';
 import type { Material } from '../types';
 
+const normalizeKey = (k: string) => k.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+// Returns a getter that looks up a value by any of several header aliases,
+// ignoring case, spaces and punctuation (so "Purchase Price (RM)" == "purchaseprice").
+function makeFieldGetter(row: Record<string, string>) {
+  const map = new Map<string, string>();
+  for (const [k, v] of Object.entries(row)) map.set(normalizeKey(k), v);
+  return (aliases: string[]): string => {
+    for (const a of aliases) {
+      const v = map.get(normalizeKey(a));
+      if (v != null && v !== '') return v.trim();
+    }
+    return '';
+  };
+}
+
+// Parse a number from messy cells like "RM 14.90", "125 g", "1/2 tsp".
+function num(s: string): number {
+  if (!s) return 0;
+  const m = s.replace(/,/g, '').match(/-?\d*\.?\d+/);
+  return m ? Number(m[0]) : 0;
+}
+
 const blank = (cat: string, unit: string): Material => ({
   name: '',
   purchasePrice: 0,
@@ -71,24 +94,40 @@ export default function Materials() {
 
   const importCsv = async (file: File) => {
     setError('');
-    const text = await file.text();
-    const rows = parseCSV(text);
-    const toAdd: Material[] = rows.map((r) => {
-      const qty = Number(r.purchaseQty) || 1;
-      const price = Number(r.purchasePrice) || 0;
-      return {
-        name: r.name,
-        category: r.category || config.materialCategories[0] || 'Other',
-        purchasePrice: price,
-        purchaseQty: qty,
-        purchaseUnit: r.purchaseUnit || config.units[0] || 'piece',
-        costPerBaseUnit: r.costPerBaseUnit ? Number(r.costPerBaseUnit) : qty > 0 ? price / qty : 0,
-        stockOnHand: Number(r.stockOnHand) || 0,
-        reorderThreshold: Number(r.reorderThreshold) || 0,
-        supplier: r.supplier || '',
-      };
-    });
-    await db.materials.bulkAdd(toAdd.filter((m) => m.name));
+    try {
+      const text = await file.text();
+      const rows = parseCSV(text);
+      const toAdd: Material[] = [];
+      for (const r of rows) {
+        const g = makeFieldGetter(r);
+        const name = g(['name', 'item', 'ingredient', 'material', 'product']);
+        if (!name) continue;
+        // skip total / summary rows and stray repeated header rows
+        if (/^(total|grand total|subtotal)/i.test(name)) continue;
+        if (['item', 'ingredient', 'material', 'name', 'product'].includes(name.toLowerCase())) continue;
+        const qty = num(g(['purchaseqty', 'qty', 'quantity', 'packsize', 'purchasequantity'])) || 1;
+        const price = num(g(['purchaseprice', 'price', 'unitprice', 'purchaseprice(rm)', 'cost']));
+        const explicitUnitCost = num(g(['costperbaseunit', 'costperunit', 'costperunit(formula)', 'unitcost']));
+        toAdd.push({
+          name,
+          category: g(['category']) || config.materialCategories[0] || 'Other',
+          purchasePrice: price,
+          purchaseQty: qty,
+          purchaseUnit: g(['purchaseunit', 'unit']) || config.units[0] || 'piece',
+          costPerBaseUnit: explicitUnitCost || (qty > 0 ? price / qty : 0),
+          stockOnHand: num(g(['stockonhand', 'stock', 'onhand'])),
+          reorderThreshold: num(g(['reorderthreshold', 'reorder', 'reorderlevel'])),
+          supplier: g(['supplier']) || '',
+        });
+      }
+      if (toAdd.length === 0) {
+        setError('No rows imported. Expected a "name" (or Item/Ingredient) column.');
+        return;
+      }
+      await db.materials.bulkAdd(toAdd);
+    } catch (e) {
+      setError(`Import failed: ${(e as Error).message}`);
+    }
   };
 
   return (

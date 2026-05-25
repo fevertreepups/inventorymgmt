@@ -42,11 +42,21 @@ export const bakeryConfig: AppConfig = {
   currency: 'RM',
   currencySymbolPosition: 'before',
   labourRatePerHour: 18,
-  machineRatePerHour: 0.3,
+  machineRatePerHour: 0.43,
   defaultTargetMarginPct: 55,
   taxRatePct: 6,
-  units: ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece', 'sheet'],
-  materialCategories: ['Dairy', 'Dry Goods', 'Chocolate', 'Sweetener', 'Packaging', 'Other'],
+  units: ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece', 'biji', 'sheet'],
+  materialCategories: [
+    'Dairy',
+    'Dry Goods',
+    'Chocolate',
+    'Sweetener',
+    'Leavening',
+    'Flavouring',
+    'Salt',
+    'Packaging',
+    'Other',
+  ],
   expenseCategories: ['Rent', 'Marketing', 'Equipment', 'Utilities', 'Other'],
   salesChannels: ['Market', 'Online', 'Wholesale', 'Retail'],
   vocabulary: {
@@ -145,35 +155,49 @@ export async function loadBakerySeed(): Promise<void> {
   await clearAll();
   await setMeta('config', JSON.stringify(bakeryConfig));
 
+  // Ingredient master data from Wawabakes Wonder's own costing sheet.
+  // costPerBaseUnit is purchasePrice / purchaseQty, kept at full precision (Rule A).
   const materials: Material[] = [
-    { name: 'Lurpak Salted Butter', purchasePrice: 24, purchaseQty: 1, purchaseUnit: 'kg', costPerBaseUnit: 24, stockOnHand: 4, reorderThreshold: 1, supplier: 'GroceryCo', category: 'Dairy' },
-    { name: 'Plain Flour', purchasePrice: 5, purchaseQty: 5, purchaseUnit: 'kg', costPerBaseUnit: 1, stockOnHand: 12, reorderThreshold: 3, supplier: 'GroceryCo', category: 'Dry Goods' },
-    { name: 'Dark Chocolate Chips', purchasePrice: 40, purchaseQty: 2, purchaseUnit: 'kg', costPerBaseUnit: 20, stockOnHand: 3, reorderThreshold: 1, supplier: 'ChocSupply', category: 'Chocolate' },
-    { name: 'Brown Sugar', purchasePrice: 8, purchaseQty: 2, purchaseUnit: 'kg', costPerBaseUnit: 4, stockOnHand: 5, reorderThreshold: 1, supplier: 'GroceryCo', category: 'Sweetener' },
-    { name: 'Cookie Jar', purchasePrice: 30, purchaseQty: 20, purchaseUnit: 'piece', costPerBaseUnit: 1.5, stockOnHand: 25, reorderThreshold: 10, supplier: 'BoxIt', category: 'Packaging' },
+    { name: 'Lurpak Salted Butter', purchasePrice: 15.3, purchaseQty: 250, purchaseUnit: 'g', costPerBaseUnit: 0.0612, stockOnHand: 2000, reorderThreshold: 500, supplier: 'Grocer', category: 'Dairy' },
+    { name: 'Castor Sugar', purchasePrice: 4.9, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.0049, stockOnHand: 3000, reorderThreshold: 500, supplier: 'Grocer', category: 'Sweetener' },
+    { name: 'Brown Sugar', purchasePrice: 4.95, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.00495, stockOnHand: 3000, reorderThreshold: 500, supplier: 'Grocer', category: 'Sweetener' },
+    { name: 'Tepung Bakers (Flour)', purchasePrice: 2.95, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.00295, stockOnHand: 5000, reorderThreshold: 1000, supplier: 'Grocer', category: 'Dry Goods' },
+    { name: 'Corn Starch', purchasePrice: 6, purchaseQty: 400, purchaseUnit: 'g', costPerBaseUnit: 0.015, stockOnHand: 800, reorderThreshold: 200, supplier: 'Grocer', category: 'Dry Goods' },
+    { name: 'Baking Soda', purchasePrice: 1.3, purchaseQty: 100, purchaseUnit: 'g', costPerBaseUnit: 0.013, stockOnHand: 300, reorderThreshold: 50, supplier: 'Grocer', category: 'Leavening' },
+    { name: 'Egg (Grade A)', purchasePrice: 13.8, purchaseQty: 30, purchaseUnit: 'biji', costPerBaseUnit: 0.46, stockOnHand: 60, reorderThreshold: 12, supplier: 'Grocer', category: 'Dairy' },
+    { name: 'Vanilla Essence', purchasePrice: 21, purchaseQty: 1000, purchaseUnit: 'ml', costPerBaseUnit: 0.021, stockOnHand: 500, reorderThreshold: 100, supplier: 'Grocer', category: 'Flavouring' },
+    { name: 'Callebaut Chocolate', purchasePrice: 114, purchaseQty: 1000, purchaseUnit: 'g', costPerBaseUnit: 0.114, stockOnHand: 2000, reorderThreshold: 500, supplier: 'Baking Supply', category: 'Chocolate' },
+    { name: 'Maldon Seasalt', purchasePrice: 33, purchaseQty: 250, purchaseUnit: 'g', costPerBaseUnit: 0.132, stockOnHand: 250, reorderThreshold: 50, supplier: 'Baking Supply', category: 'Salt' },
+    { name: 'Jar + Sticker', purchasePrice: 1.6, purchaseQty: 1, purchaseUnit: 'piece', costPerBaseUnit: 1.6, stockOnHand: 50, reorderThreshold: 20, supplier: 'Packaging Co', category: 'Packaging' },
   ];
-  const ids = await db.materials.bulkAdd(materials, { allKeys: true });
-  const [butter, flour, choc, sugar] = ids as number[];
+  const ids = (await db.materials.bulkAdd(materials, { allKeys: true })) as number[];
+  const [butter, castor, brown, flour, cornStarch, soda, egg, vanilla, choc, salt] = ids;
 
-  // byWeight: dough divided by weight. Batch dough output summed ~ 2400g, 200g per jar => 12 units.
+  // byWeight: total dough ~1300 g divided into 180 g jars => 7.22 jars per bake.
   const product: Product = {
-    name: 'Brown Butter Cookie Jar',
+    name: 'Wawabakes Wonder Cookie Jar',
     yieldMode: 'byWeight',
-    batchOutputQty: 2400,
-    outputPerUnit: 200,
+    batchOutputQty: 1300,
+    outputPerUnit: 180,
     batchOutputUnit: 'g',
     lineItems: [
-      { materialId: butter, amountUsed: 500, unit: 'g' },
-      { materialId: flour, amountUsed: 800, unit: 'g' },
-      { materialId: choc, amountUsed: 400, unit: 'g' },
-      { materialId: sugar, amountUsed: 700, unit: 'g' },
+      { materialId: butter, amountUsed: 125, unit: 'g' },
+      { materialId: castor, amountUsed: 110, unit: 'g' },
+      { materialId: brown, amountUsed: 100, unit: 'g' },
+      { materialId: flour, amountUsed: 195, unit: 'g' },
+      { materialId: cornStarch, amountUsed: 7.5, unit: 'g' },
+      { materialId: soda, amountUsed: 2.5, unit: 'g' },
+      { materialId: egg, amountUsed: 1, unit: 'biji' },
+      { materialId: vanilla, amountUsed: 15, unit: 'ml' },
+      { materialId: choc, amountUsed: 150, unit: 'g' },
+      { materialId: salt, amountUsed: 5, unit: 'g' },
     ],
     batchOverheads: [
-      { label: 'Labour', hours: 1.2, rateType: 'labour' },
-      { label: 'Oven electricity', hours: 0.75, rateType: 'machine' },
+      { label: 'Labour (self)', hours: 1.5, rateType: 'labour' },
+      { label: 'Electricity', hours: 1.5, rateType: 'machine' },
     ],
-    packagingCostPerUnit: 1.5,
-    sellPrice: 18,
+    packagingCostPerUnit: 1.6,
+    sellPrice: 28,
   };
   const productId = (await db.products.add(product)) as number;
 
@@ -181,16 +205,17 @@ export async function loadBakerySeed(): Promise<void> {
     date: monthsAgoIso(1, 6),
     productId,
     batchMultiplier: 1,
-    unitsProduced: 12,
-    unitsWasted: 1,
-    trueCostPerUnitSnapshot: 6.1,
+    unitsProduced: 7,
+    unitsWasted: 0,
+    trueCostPerUnitSnapshot: 9.7,
   });
 
+  // Sample sales/expenses (not in the source sheet) so the dashboard has data.
   const sales: Sale[] = [
-    { date: monthsAgoIso(2, 14), productId, unitsSold: 10, unitPrice: 18, channel: 'Market', costPerUnitSnapshot: 6.0 },
-    { date: monthsAgoIso(1, 9), productId, unitsSold: 18, unitPrice: 18, channel: 'Online', costPerUnitSnapshot: 6.05 },
-    { date: monthsAgoIso(1, 22), productId, unitsSold: 8, unitPrice: 17, channel: 'Market', costPerUnitSnapshot: 6.1 },
-    { date: isoDaysAgo(4), productId, unitsSold: 12, unitPrice: 18, channel: 'Online', costPerUnitSnapshot: 6.1 },
+    { date: monthsAgoIso(2, 14), productId, unitsSold: 6, unitPrice: 28, channel: 'Market', costPerUnitSnapshot: 9.6 },
+    { date: monthsAgoIso(1, 9), productId, unitsSold: 10, unitPrice: 28, channel: 'Online', costPerUnitSnapshot: 9.65 },
+    { date: monthsAgoIso(1, 22), productId, unitsSold: 5, unitPrice: 26, channel: 'Market', costPerUnitSnapshot: 9.7 },
+    { date: isoDaysAgo(4), productId, unitsSold: 7, unitPrice: 28, channel: 'Online', costPerUnitSnapshot: 9.7 },
   ];
   await db.sales.bulkAdd(sales);
 
