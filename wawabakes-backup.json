@@ -1,0 +1,72 @@
+{
+  "app": "costbook",
+  "version": 1,
+  "exportedAt": "2026-05-25T00:00:00.000Z",
+  "config": {
+    "businessName": "Wawabakes Wonder",
+    "currency": "RM",
+    "currencySymbolPosition": "before",
+    "labourRatePerHour": 12,
+    "machineRatePerHour": 0.4333333333,
+    "defaultTargetMarginPct": 55,
+    "taxRatePct": 6,
+    "units": ["g", "kg", "ml", "l", "tsp", "tbsp", "piece", "biji", "sheet"],
+    "materialCategories": ["Dairy", "Dry Goods", "Chocolate", "Sweetener", "Leavening", "Flavouring", "Salt", "Packaging", "Other"],
+    "expenseCategories": ["Rent", "Marketing", "Equipment", "Utilities", "Other"],
+    "salesChannels": ["Market", "Online", "Wholesale", "Retail"],
+    "vocabulary": {
+      "material": "Ingredient", "materialPlural": "Ingredients",
+      "product": "Recipe", "productPlural": "Recipes",
+      "productionRun": "Bake", "productionRunPlural": "Bakes"
+    },
+    "theme": { "primary": "#7f5539", "accent": "#e6ccb2" },
+    "logoPath": "/assets/logo.png"
+  },
+  "data": {
+    "materials": [
+      { "id": 1, "name": "Lurpak Salted Butter", "purchasePrice": 14.9, "purchaseQty": 250, "purchaseUnit": "g", "costPerBaseUnit": 0.0596, "stockOnHand": 250, "reorderThreshold": 125, "supplier": "Grocer", "category": "Dairy" },
+      { "id": 2, "name": "Castor Sugar", "purchasePrice": 4.5, "purchaseQty": 1000, "purchaseUnit": "g", "costPerBaseUnit": 0.0045, "stockOnHand": 1000, "reorderThreshold": 200, "supplier": "Grocer", "category": "Sweetener" },
+      { "id": 3, "name": "Brown Sugar", "purchasePrice": 4.95, "purchaseQty": 1000, "purchaseUnit": "g", "costPerBaseUnit": 0.00495, "stockOnHand": 1000, "reorderThreshold": 200, "supplier": "Grocer", "category": "Sweetener" },
+      { "id": 4, "name": "Tepung Bakers (Flour)", "purchasePrice": 2.95, "purchaseQty": 1000, "purchaseUnit": "g", "costPerBaseUnit": 0.00295, "stockOnHand": 1000, "reorderThreshold": 300, "supplier": "Grocer", "category": "Dry Goods" },
+      { "id": 5, "name": "Corn Starch", "purchasePrice": 6, "purchaseQty": 400, "purchaseUnit": "g", "costPerBaseUnit": 0.015, "stockOnHand": 400, "reorderThreshold": 100, "supplier": "Grocer", "category": "Dry Goods" },
+      { "id": 6, "name": "Baking Soda", "purchasePrice": 1.3, "purchaseQty": 100, "purchaseUnit": "g", "costPerBaseUnit": 0.013, "stockOnHand": 100, "reorderThreshold": 25, "supplier": "Grocer", "category": "Leavening" },
+      { "id": 7, "name": "Egg (Grade A)", "purchasePrice": 13.8, "purchaseQty": 30, "purchaseUnit": "biji", "costPerBaseUnit": 0.46, "stockOnHand": 30, "reorderThreshold": 6, "supplier": "Grocer", "category": "Dairy" },
+      { "id": 8, "name": "Vanilla Essence", "purchasePrice": 21, "purchaseQty": 1000, "purchaseUnit": "ml", "costPerBaseUnit": 0.021, "stockOnHand": 1000, "reorderThreshold": 200, "supplier": "Grocer", "category": "Flavouring" },
+      { "id": 9, "name": "Callebaut Chocolate", "purchasePrice": 114, "purchaseQty": 1000, "purchaseUnit": "g", "costPerBaseUnit": 0.114, "stockOnHand": 1000, "reorderThreshold": 300, "supplier": "Baking Supply", "category": "Chocolate" },
+      { "id": 10, "name": "Maldon Seasalt", "purchasePrice": 33, "purchaseQty": 250, "purchaseUnit": "g", "costPerBaseUnit": 0.132, "stockOnHand": 250, "reorderThreshold": 50, "supplier": "Baking Supply", "category": "Salt" },
+      { "id": 11, "name": "Jar", "purchasePrice": 3.5, "purchaseQty": 1, "purchaseUnit": "piece", "costPerBaseUnit": 3.5, "stockOnHand": 20, "reorderThreshold": 10, "supplier": "Packaging Co", "category": "Packaging" }
+    ],
+    "stockMovements": [],
+    "products": [
+      {
+        "id": 1,
+        "name": "Wawabakes Wonder Cookie Jar",
+        "yieldMode": "byWeight",
+        "batchOutputQty": 1300,
+        "outputPerUnit": 180,
+        "batchOutputUnit": "g",
+        "lineItems": [
+          { "materialId": 1, "amountUsed": 125, "unit": "g" },
+          { "materialId": 2, "amountUsed": 110, "unit": "g" },
+          { "materialId": 3, "amountUsed": 100, "unit": "g" },
+          { "materialId": 4, "amountUsed": 195, "unit": "g" },
+          { "materialId": 5, "amountUsed": 7.5, "unit": "g" },
+          { "materialId": 6, "amountUsed": 2.5, "unit": "g" },
+          { "materialId": 7, "amountUsed": 1, "unit": "biji" },
+          { "materialId": 8, "amountUsed": 15, "unit": "ml" },
+          { "materialId": 9, "amountUsed": 200, "unit": "g" },
+          { "materialId": 10, "amountUsed": 5, "unit": "g" }
+        ],
+        "batchOverheads": [
+          { "label": "Electricity", "hours": 1.5, "rateType": "machine" },
+          { "label": "Labour (self)", "hours": 1.5, "rateType": "labour" },
+          { "label": "Jar", "cost": 3.5 }
+        ],
+        "packagingCostPerUnit": 0
+      }
+    ],
+    "productions": [],
+    "sales": [],
+    "expenses": []
+  }
+}
