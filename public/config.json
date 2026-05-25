@@ -1,0 +1,23 @@
+{
+  "businessName": "Ember & Oak Candles",
+  "currency": "RM",
+  "currencySymbolPosition": "before",
+  "labourRatePerHour": 24,
+  "machineRatePerHour": 0.43,
+  "defaultTargetMarginPct": 60,
+  "taxRatePct": 0,
+  "units": ["g", "kg", "ml", "l", "tsp", "tbsp", "piece", "metre", "cm", "sheet"],
+  "materialCategories": ["Wax", "Wick", "Fragrance", "Vessel", "Packaging", "Other"],
+  "expenseCategories": ["Rent", "Marketing", "Equipment", "Utilities", "Other"],
+  "salesChannels": ["Market", "Online", "Wholesale", "Retail"],
+  "vocabulary": {
+    "material": "Material",
+    "materialPlural": "Materials",
+    "product": "Product",
+    "productPlural": "Products",
+    "productionRun": "Batch",
+    "productionRunPlural": "Batches"
+  },
+  "theme": { "primary": "#3a5a40", "accent": "#a3b18a" },
+  "logoPath": "/assets/logo.png"
+}
