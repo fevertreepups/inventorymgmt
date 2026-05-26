@@ -6,7 +6,7 @@
     "businessName": "Wawabakes Wonder",
     "currency": "RM",
     "currencySymbolPosition": "before",
-    "labourRatePerHour": 12,
+    "labourRatePerHour": 24,
     "machineRatePerHour": 0.4333333333,
     "defaultTargetMarginPct": 55,
     "taxRatePct": 6,
@@ -34,7 +34,7 @@
       { "id": 8, "name": "Vanilla Essence", "purchasePrice": 21, "purchaseQty": 1000, "purchaseUnit": "ml", "costPerBaseUnit": 0.021, "stockOnHand": 1000, "reorderThreshold": 200, "supplier": "Grocer", "category": "Flavouring" },
       { "id": 9, "name": "Callebaut Chocolate", "purchasePrice": 114, "purchaseQty": 1000, "purchaseUnit": "g", "costPerBaseUnit": 0.114, "stockOnHand": 1000, "reorderThreshold": 300, "supplier": "Baking Supply", "category": "Chocolate" },
       { "id": 10, "name": "Maldon Seasalt", "purchasePrice": 33, "purchaseQty": 250, "purchaseUnit": "g", "costPerBaseUnit": 0.132, "stockOnHand": 250, "reorderThreshold": 50, "supplier": "Baking Supply", "category": "Salt" },
-      { "id": 11, "name": "Jar", "purchasePrice": 3.5, "purchaseQty": 1, "purchaseUnit": "piece", "costPerBaseUnit": 3.5, "stockOnHand": 20, "reorderThreshold": 10, "supplier": "Packaging Co", "category": "Packaging" }
+      { "id": 11, "name": "Jar + Sticker", "purchasePrice": 1.6, "purchaseQty": 1, "purchaseUnit": "piece", "costPerBaseUnit": 1.6, "stockOnHand": 20, "reorderThreshold": 10, "supplier": "Packaging Co", "category": "Packaging" }
     ],
     "stockMovements": [],
     "products": [
@@ -59,10 +59,9 @@
         ],
         "batchOverheads": [
           { "label": "Electricity", "hours": 1.5, "rateType": "machine" },
-          { "label": "Labour (self)", "hours": 1.5, "rateType": "labour" },
-          { "label": "Jar", "cost": 3.5 }
+          { "label": "Labour (baking)", "hours": 1.5, "rateType": "labour" }
         ],
-        "packagingCostPerUnit": 0
+        "packagingCostPerUnit": 6.6
       }
     ],
     "productions": [],

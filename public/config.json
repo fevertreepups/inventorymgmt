@@ -2,7 +2,7 @@
   "businessName": "Wawabakes Wonder",
   "currency": "RM",
   "currencySymbolPosition": "before",
-  "labourRatePerHour": 12,
+  "labourRatePerHour": 24,
   "machineRatePerHour": 0.4333333333,
   "defaultTargetMarginPct": 55,
   "taxRatePct": 6,
