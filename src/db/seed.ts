@@ -177,13 +177,9 @@ export async function loadBakerySeed(): Promise<void> {
   const [butter, castor, brown, flour, cornStarch, soda, egg, vanilla, choc, salt] = ids;
 
   // byWeight: total dough 1300 g divided into 180 g jars => 7.22 jars per bake.
-  // Mirrors the sheet's Block 3 final costing:
-  //   cost per jar RM9.70 = (ingredients RM33.40 + electricity RM0.65
-  //     + batch labour RM36.00 @ RM24/hr x 1.5h) / 7.22 jars
-  //   + packaging RM1.60 (jar + sticker) + finishing labour RM5.00
-  //   = true cost RM16.30 per jar.
-  // The RM1.60 packaging and RM5.00 per-jar finishing labour are combined into
-  // packagingCostPerUnit (RM6.60), since both are per-unit add-ons after baking.
+  // Costing per the owner's instruction: no labour cost is counted. Cost is
+  // ingredients (RM33.40) + electricity (RM0.65) = RM34.05 batch, over 7.22 jars
+  // = RM4.71 per jar, plus packaging RM1.60 (jar + sticker) = RM6.31 true cost.
   const product: Product = {
     name: 'Wawabakes Wonder Cookie Jar',
     yieldMode: 'byWeight',
@@ -202,11 +198,8 @@ export async function loadBakerySeed(): Promise<void> {
       { materialId: choc, amountUsed: 200, unit: 'g' },
       { materialId: salt, amountUsed: 5, unit: 'g' },
     ],
-    batchOverheads: [
-      { label: 'Electricity', hours: 1.5, rateType: 'machine' },
-      { label: 'Labour (baking)', hours: 1.5, rateType: 'labour' },
-    ],
-    packagingCostPerUnit: 6.6,
+    batchOverheads: [{ label: 'Electricity', hours: 1.5, rateType: 'machine' }],
+    packagingCostPerUnit: 1.6,
   };
   await db.products.add(product);
 }

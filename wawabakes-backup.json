@@ -58,10 +58,9 @@
           { "materialId": 10, "amountUsed": 5, "unit": "g" }
         ],
         "batchOverheads": [
-          { "label": "Electricity", "hours": 1.5, "rateType": "machine" },
-          { "label": "Labour (baking)", "hours": 1.5, "rateType": "labour" }
+          { "label": "Electricity", "hours": 1.5, "rateType": "machine" }
         ],
-        "packagingCostPerUnit": 6.6
+        "packagingCostPerUnit": 1.6
       }
     ],
     "productions": [],
